@@ -11,7 +11,7 @@ import pprint
 
 
 DEFAULT_MEDIA_DIR = '/mnt/storage/media'
-DEFAULT_STORE_FILENAME = 'pytranscoder.yml'
+DEFAULT_STORE_FILENAME = '~/.pytranscoder.yml'
 SUPPORTED_FILE_EXTENSIONS = ['.mp4', '.avi', '.mkv']
 
 
@@ -70,7 +70,7 @@ class Store:
 
 def transcode(count):
     store = Store(DEFAULT_MEDIA_DIR)
-    store.open(DEFAULT_STORE_FILENAME)
+    store.open(os.path.expanduser(DEFAULT_STORE_FILENAME))
     store.update()
 
     for file in store.untranscoded[:count]:
@@ -79,7 +79,7 @@ def transcode(count):
         subprocess.call(f'mv "$(dirname \"{file}\")/$(basename \"{file}\" .mp4).transcoding.mp4" "{file}"', shell=True)
         store.mark_transcoded(file)
 
-    store.close(DEFAULT_STORE_FILENAME)
+    store.close(os.path.expanduser(DEFAULT_STORE_FILENAME))
 
 
 if __name__ == '__main__':

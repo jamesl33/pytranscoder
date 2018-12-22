@@ -74,9 +74,9 @@ def transcode(count):
     store.update()
 
     for file in store.untranscoded[:count]:
-        subprocess.call(f'ffmpeg -i "{file}" -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "$(dirname \"{file}\")/$(basename \"{file}\" .mp4).transcoding.mp4"', shell=True)
-        subprocess.call(f'rm "{file}"', shell=True)
-        subprocess.call(f'mv "$(dirname \"{file}\")/$(basename \"{file}\" .mp4).transcoding.mp4" "{file}"', shell=True)
+        subprocess.call('ffmpeg -i "{0}" -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4"'.format(file), shell=True)
+        subprocess.call('rm "{0}'.format(file), shell=True)
+        subprocess.call('mv "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4" "{0}"'.format(file), shell=True)
         store.mark_transcoded(file)
 
     store.close(os.path.expanduser(DEFAULT_STORE_FILENAME))

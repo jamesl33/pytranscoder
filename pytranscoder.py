@@ -2,6 +2,8 @@
 
 import os
 import subprocess
+import threading
+import queue
 
 from typing import List
 
@@ -10,6 +12,8 @@ import pyaml
 import pprint
 
 
+TRANSCODE_WORKERS = 8
+DEFAULT_TRANSCODE_COUNT = 25
 DEFAULT_MEDIA_DIR = '/mnt/storage/media'
 DEFAULT_STORE_FILENAME = '~/.pytranscoder.yml'
 SUPPORTED_FILE_EXTENSIONS = ['.mp4', '.avi', '.mkv']
@@ -68,19 +72,36 @@ class Store:
         return pprint.pformat(self._data)
 
 
-def transcode(count):
+def transcode_worker(transcodeQueue: queue.Queue) -> None:
+    while True:
+        file = transcodeQueue.get()
+
+        if file is None:
+            break
+
+        subprocess.call('ffmpeg -i "{0}" -map_chapters -1 -map_metadata -1 -metadata:s:a language=eng -metadata:s:v language=eng -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4"'.format(file), shell=True)
+        subprocess.call('rm "{0}"'.format(file), shell=True)
+        subprocess.call('mv "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4" "{0}"'.format(file), shell=True)
+
+        store.mark_transcoded(file)
+        transcodeQueue.task_done()
+
+
+if __name__ == '__main__':
+    transcodeQueue = queue.Queue()
+
+    for _ in range(TRANSCODE_WORKERS):
+        thread = threading.Thread(target=transcode_worker,
+                                  args=(transcodeQueue,))
+        thread.setDaemon(True)
+        thread.start()
+
     store = Store(DEFAULT_MEDIA_DIR)
     store.open(os.path.expanduser(DEFAULT_STORE_FILENAME))
     store.update()
 
-    for file in store.untranscoded[:count]:
-        subprocess.call('ffmpeg -i "{0}" -map_chapters -1 -map_metadata -1 -metadata:s:a language=eng -metadata:s:v language=eng -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4"'.format(file), shell=True)
-        subprocess.call('rm "{0}"'.format(file), shell=True)
-        subprocess.call('mv "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4" "{0}"'.format(file), shell=True)
-        store.mark_transcoded(file)
+    for file in store.untranscoded[:DEFAULT_TRANSCODE_COUNT]:
+        transcodeQueue.put(file)
 
+    transcodeQueue.join()
     store.close(os.path.expanduser(DEFAULT_STORE_FILENAME))
-
-
-if __name__ == '__main__':
-    transcode(25)

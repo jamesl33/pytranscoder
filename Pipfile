@@ -9,7 +9,6 @@ pylint = "*"
 
 [packages]
 pyyaml = "*"
-pprint = "*"
 pyaml = "*"
 
 [requires]

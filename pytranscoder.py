@@ -13,7 +13,7 @@ import yaml
 
 TRANSCODE_WORKERS = 8
 DEFAULT_MEDIA_DIR = '/mnt/storage/media'
-DEFAULT_STORE_FILENAME = '~/.pytranscoder.yml'
+DEFAULT_STORE_FILENAME = '/mnt/storage/media/pytranscoder.yml'
 SUPPORTED_FILE_EXTENSIONS = ['.mp4', '.avi', '.mkv']
 
 

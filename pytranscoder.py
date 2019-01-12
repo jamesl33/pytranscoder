@@ -51,6 +51,15 @@ class Store:
             if file not in knownFiles:
                 self._data['untranscoded'].append(file)
 
+        # Check for any media files which have been deleted
+        for file in self._data['transcoded'].copy():
+            if file not in mediaFiles:
+                self._data['transcoded'].remove(file)
+
+        for file in self._data['untranscoded'].copy():
+            if file not in mediaFiles:
+                self._data['untranscoded'].remove(file)
+
         # Save the updated file
         with open(self._filename, 'w') as outfile:
             pyaml.dump(self._data, outfile)

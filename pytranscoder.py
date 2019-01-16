@@ -74,7 +74,7 @@ class Store:
 
     def mark_transcoded(self, file: str) -> None:
         self._data['untranscoded'].remove(file)
-        self._data['transcoded'].append(file)
+        self._data['transcoded'].append(os.path.splitext(file)[0] + '.mp4')
 
         with open(self._filename, 'w') as outfile:
             pyaml.dump(self._data, outfile)
@@ -84,13 +84,16 @@ def transcode_worker(store: Store, transcodeQueue: queue.Queue) -> None:
     while True:
         try:
             file = transcodeQueue.get(timeout=5)
+            dirname = os.path.dirname(file)
+            basename = os.path.basename(file)
+            filename, _ = os.path.splitext(basename)
         except queue.Empty:
             # Stop the worker if there isn't any more items to transcode
             break
 
-        subprocess.call('ffmpeg -i "{0}" -map_chapters -1 -map_metadata -1 -metadata:s:a language=eng -metadata:s:v language=eng -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4"'.format(file), shell=True)
-        subprocess.call('rm "{0}"'.format(file), shell=True)
-        subprocess.call('mv "$(dirname \"{0}\")/$(basename \"{0}\" .mp4).transcoding.mp4" "{0}"'.format(file), shell=True)
+        subprocess.call('ffmpeg -i "{0}" -map_chapters -1 -map_metadata -1 -metadata:s:a language=eng -metadata:s:v language=eng -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "{1}/{2}.transcoding.mp4"'.format(file, dirname, filename), shell=True)
+        os.remove(file)
+        os.rename(os.path.join(dirname, filename + '.transcoding.mp4'), os.path.join(dirname, filename + '.mp4'))
 
         store.mark_transcoded(file)
         transcodeQueue.task_done()

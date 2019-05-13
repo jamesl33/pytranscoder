@@ -36,7 +36,7 @@ class Store:
         # Open and update the store
         try:
             with open(self._filename, 'r') as infile:
-                self._data = yaml.load(infile)
+                self._data = yaml.load(infile, Loader=yaml.FullLoader)
         except FileNotFoundError:
             self._data = {
                 'transcoded': [],

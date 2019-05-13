@@ -61,8 +61,7 @@ class Store:
                 self._data['untranscoded'].remove(file)
 
         # Save the updated file
-        with open(self._filename, 'w') as outfile:
-            pyaml.dump(self._data, outfile)
+        self.write_to_disk()
 
     @property
     def transcoded(self) -> List[str]:
@@ -75,6 +74,11 @@ class Store:
     def mark_transcoded(self, file: str) -> None:
         self._data['untranscoded'].remove(file)
         self._data['transcoded'].append(os.path.splitext(file)[0] + '.mp4')
+        self.write_to_disk()
+
+    def write_to_disk(self) -> None:
+        for key in self._data:
+            self._data[key].sort()
 
         with open(self._filename, 'w') as outfile:
             pyaml.dump(self._data, outfile)

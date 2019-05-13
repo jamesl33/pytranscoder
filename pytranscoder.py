@@ -95,7 +95,7 @@ def transcode_worker(store: Store, transcodeQueue: queue.Queue) -> None:
             # Stop the worker if there isn't any more items to transcode
             break
 
-        subprocess.call('ffmpeg -i "{0}" -map_chapters -1 -map_metadata -1 -metadata:s:a language=eng -metadata:s:v language=eng -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "{1}/{2}.transcoding.mp4"'.format(file, dirname, filename), shell=True)
+        subprocess.call('ffmpeg -i file:"{0}" -map_chapters -1 -map_metadata -1 -metadata:s:a language=eng -metadata:s:v language=eng -sn -profile:v high -level:v 4.0 -acodec aac -vcodec h264 "{1}/{2}.transcoding.mp4"'.format(file, dirname, filename), shell=True)
         os.remove(file)
         os.rename(os.path.join(dirname, filename + '.transcoding.mp4'), os.path.join(dirname, filename + '.mp4'))
 

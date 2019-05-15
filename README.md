@@ -1,8 +1,12 @@
-#!/usr/bin/env python3
-"""
-This file is part of pytranscoder.
+pytranscoder
+------------
+pytranscoder is a tool designed to aid in the management of a large media
+library. It does this by automatically tracking and transcoding media files
+in such a way that it can be run as a daily service.
 
-Copyright (C) 2018, James Lee <jamesl33info@gmail.com>.
+License
+-------
+Copyright (C) 2019 James Lee <jamesl33info@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,17 +20,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-
-from setuptools import setup
-
-setup(name='pytranscoder',
-      version='0.1',
-      author='James Lee',
-      author_email='jamesl33info@gmail.com',
-      packages=['.'],
-      install_requires=[
-          'pyaml',
-          'pyyaml',
-          'pprint'
-      ])
